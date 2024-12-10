@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Check if the script is run as root (required for network-related commands)
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run the script as root using sudo."
+  exit 1
+fi
+
+echo "Scanning USB devices..."
+echo "-----------------------"
+# List all connected USB devices
+lsusb
+
+echo -e "\nLooking for network interfaces..."
+echo "---------------------------------"
+
+# Use 'ip link' (preferred over ifconfig) to list network interfaces
+network_interfaces=$(ip link show | awk -F: '$1 ~ /^[0-9]+$/ {print $2}' | tr -d ' ')
+
+if [ -z "$network_interfaces" ]; then
+  echo "No network interfaces found."
+  exit 0
+fi
+
+# Loop through the interfaces to detect those associated with a USB adapter
+for interface in $network_interfaces; do
+  # Check if the interface has a MAC address
+  mac_address=$(ip link show "$interface" | awk '/ether/ {print $2}')
+
+  if [ -n "$mac_address" ]; then
+    # Check if the interface is linked to a USB adapter
+    usb_association=$(ethtool -i "$interface" 2>/dev/null | grep -i 'bus-info.*usb')
+    
+    if [ -n "$usb_association" ]; then
+      echo "USB Network Interface Found: $interface"
+      echo "MAC Address: $mac_address"
+      echo "---------------------------------"
+    fi
+  fi
+done
+
+echo "Script completed."
