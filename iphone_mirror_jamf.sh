@@ -48,7 +48,7 @@ for app_path in $app_paths; do
 
         if [[ "$confirm" == "yes" ]]; then
             # Delete the parent_folder and all its contents
-            #rm -rf "$parent_folder_path"
+            rm -rf "$parent_folder_path"
             echo "Directory '$parent_folder_path' has been deleted."
             break
         else
