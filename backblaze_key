@@ -1,0 +1,36 @@
+#Testing getting and deleting a computer from back blaze
+import requests
+import base64
+import json
+#import logging
+def get_auth_token():
+    application_key_id ="00406c9cb156ca10000000002"
+    application_key ="K004sqDbgJhOn//xAADZ93budK1/sLY
+    key = f"{application_key_id}:{application_key}"
+    b64key = base64.b64encode(key.encode("ascii"))
+    true_key = b64key.decode("ascii")
+    my_headers ={
+        "Authorization":f"Basic {true_key} ",
+        "Content-Type": "application/json",
+    }
+    try:
+         auth_token_request = requests.get(f"https://api.backblazeb2.com/b2api/v3/b2_authorize_account",
+         headers=my_headers)
+    except ConnectionError as error:
+         print(error)
+    else:
+         auth_token = auth_token_request.json()
+    #     # pprint.pprint(vault_info)
+    #     # pprint.pprint(vault_fields)
+         if auth_token_request.status_code == 200:
+             #auth_id = auth_token[0]
+             print(auth_token)
+             #print(auth_id)
+    #         #logging.info("Authorization token retrived successfully")
+             return auth_token
+    #     else:
+    #         print(f"Failed to get token \n {auth_token}")
+    #         # #logging.error(
+    #         #     "Connection was succesfull but an error occured while retriving the token. Exiting with code 13."
+    #         # )
+get_auth_token()
